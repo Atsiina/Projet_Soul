@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary-light: #00C1A0;
+  --color-primary-main: #008B71;
+  --color-primary-dark: #00755E;
+}
+
+@font-face {
+  font-family: 'Taurunum Ferrum';
+  src: url('../public/fonts/FontsFree-Net-Taurunum-Ferrum-Iron.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Taurunum Ferrum', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #0F1716;
+  color: #E6FAF7;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Taurunum Ferrum', sans-serif;
+}
+
+.floating-element {
+  background: rgba(0, 139, 113, 0.05);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 193, 160, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 117, 94, 0.1);
+  border-radius: 16px;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.animate-glow {
+  animation: glow 4s ease-in-out infinite;
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, var(--color-primary-light), var(--color-primary-main));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(90deg, var(--color-primary-light), var(--color-primary-main));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
