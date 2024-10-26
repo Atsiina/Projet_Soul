@@ -82,7 +82,7 @@ const MainPage = () => {
             alt="Soul Animation Left"
             className="w-40 object-contain transform -scale-x-100"
           />
-          <h1 className="text-[120px] font-bold tracking-wider relative">
+          <h1 className="text-[150px] font-bold tracking-wider relative">
             <span className="absolute inset-0 bg-gradient-to-b from-[#00C1A0] via-[#008B71] to-[#00755E] opacity-90 
                          bg-clip-text text-transparent z-10">
               Soul On-Lan

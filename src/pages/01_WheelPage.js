@@ -1,31 +1,37 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useThemeColors } from '../context/ColorContext';
 
-// Configuration des couleurs pour chaque mini-jeu
 const gameColors = {
   questDesAmes: {
-    main: '#00C1A0',
-    light: '#33CFB3',
-    dark: '#00A88B'
+    main: '#00A2E8',
+    light: '#33B5ED',
+    dark: '#0081BA',
+    gradient: 'linear-gradient(135deg, #33B5ED, #00A2E8, #0081BA)'
   },
   echoDeLAme: {
-    main: '#008B71',
-    light: '#00A88B',
-    dark: '#007761'
+    main: '#A349A4',
+    light: '#B66DB7',
+    dark: '#822683',
+    gradient: 'linear-gradient(135deg, #B66DB7, #A349A4, #822683)'
   },
   chiSoulMi: {
-    main: '#00755E',
-    light: '#008B71',
-    dark: '#005F4C'
+    main: '#8F0016',
+    light: '#B30025',
+    dark: '#6B0011',
+    gradient: 'linear-gradient(135deg, #B30025, #8F0016, #6B0011)'
   },
   reliquesPerdues: {
-    main: '#006B55',
-    light: '#008B71',
-    dark: '#005544'
+    main: '#C9880C',
+    light: '#E09D0E',
+    dark: '#A16C0A',
+    gradient: 'linear-gradient(135deg, #E09D0E, #C9880C, #A16C0A)'
   },
   labyrintheDeLEsprit: {
-    main: '#005F4C',
-    light: '#007761',
-    dark: '#004C3D'
+    main: '#00C1A0',
+    light: '#00D9B5',
+    dark: '#00A88B',
+    gradient: 'linear-gradient(135deg, #00D9B5, #00C1A0, #00A88B)'
   }
 };
 
@@ -35,6 +41,7 @@ const games = [
     name: "Quête des âmes",
     type: "BONUS",
     colors: gameColors.questDesAmes,
+    path: '/games/quete-des-ames',
     shortDesc: "Les esprits vous confient trois quêtes mystérieuses pour prouver votre valeur...",
     preparation: [
       "Pour chaque quête, murmurez un chiffre entre 0 et 6 au Maître du Jeu",
@@ -57,6 +64,7 @@ const games = [
     name: "Écho de l'Âme",
     type: "BONUS",
     colors: gameColors.echoDeLAme,
+    path: '/games/echo-de-lame',
     shortDesc: "Les mots ont du pouvoir, et certains résonnent plus que d'autres...",
     preparation: [
       "Vous recevrez l'une des trois listes de mots mystiques existantes",
@@ -79,6 +87,7 @@ const games = [
     name: "Chi-Soul-Mi",
     type: "MALUS",
     colors: gameColors.chiSoulMi,
+    path: '/games/chi-soul-mi',
     shortDesc: "Un duel d'âmes où le hasard et la stratégie s'entremêlent...",
     preparation: [],
     rules: {
@@ -98,6 +107,7 @@ const games = [
     name: "Les Reliques Perdues",
     type: "BONUS",
     colors: gameColors.reliquesPerdues,
+    path: '/games/reliques-perdues',
     shortDesc: "Les âmes anciennes ont laissé derrière elles des reliques puissantes. Saurez-vous les retrouver avant les autres ?",
     preparation: [
       "Le Maître du Jeu cache des indices dans les différents canaux Discord ou dans les messages passés des participants",
@@ -119,6 +129,7 @@ const games = [
     name: "Labyrinthe de l'Esprit",
     type: "MALUS",
     colors: gameColors.labyrintheDeLEsprit,
+    path: '/games/labyrinthe',
     shortDesc: "Votre esprit est perdu dans un labyrinthe mystique. Seule la logique pourra vous guider vers la sortie...",
     preparation: [
       "Le Maître du Jeu crée un \"labyrinthe\" sous forme d'énigmes, chaque sortie d'énigme menant à une nouvelle salle (ou sortie)",
@@ -136,69 +147,23 @@ const games = [
     warning: "Ne vous égarez pas trop longtemps, ou les murs du labyrinthe commenceront à se resserrer..."
   }
 ];
+
 const WheelPage = () => {
+  const navigate = useNavigate();
+  const { setThemeColors } = useThemeColors();
   const [isSpinning, setIsSpinning] = useState(false);
   const [selectedGame, setSelectedGame] = useState(null);
   const [showDescription, setShowDescription] = useState(false);
   const [wheelBubbles, setWheelBubbles] = useState([]);
+  const [finalBubble, setFinalBubble] = useState(null);
+  const [animationPhase, setAnimationPhase] = useState('idle');
 
-  // Logique d'animation (comme dans la troisième partie)
-  useEffect(() => {
-    const generateWheelBubbles = () => {
-      return games.map((game, index) => ({
-        id: game.id,
-        color: game.colors.main,
-        angle: (360 / games.length) * index,
-        radius: 200, // Augmenté pour suivre la nouvelle taille de roue
-        size: Math.random() * (80 - 60) + 60, // Bulles plus grandes
-        wobble: {
-          radius: Math.random() * 30, // Plus d'amplitude
-          speed: Math.random() * (2 - 0.5) + 0.5 // Vitesse réduite
-        }
-      }));
-    };
-
-    setWheelBubbles(generateWheelBubbles());
-  }, []);
-
-  useEffect(() => {
-    if (!isSpinning) {
-      const animateWheelBubbles = () => {
-        setWheelBubbles(prev => prev.map(bubble => ({
-          ...bubble,
-          angle: bubble.angle + (bubble.wobble.speed * 0.05), // Réduit de 0.1 à 0.05
-          radius: bubble.radius + Math.sin(Date.now() / 2000 * bubble.wobble.speed) * bubble.wobble.radius // Ralentit la pulsation
-        })));
-      };
-
-      const intervalId = setInterval(animateWheelBubbles, 50);
-      return () => clearInterval(intervalId);
+  const calculateBubblePosition = (angle, radius, forceCenter = false) => {
+    if (forceCenter) {
+      return { x: 300, y: 300 };
     }
-  }, [isSpinning]);
-
-  const spinWheel = () => {
-    if (!isSpinning) {
-      setIsSpinning(true);
-      setShowDescription(false);
-      
-      const convergeDuration = 3000;
-      const selectedIndex = Math.floor(Math.random() * games.length);
-      const selectedGame = games[selectedIndex];
-
-      setTimeout(() => {
-        setSelectedGame(selectedGame);
-        setIsSpinning(false);
-        
-        setTimeout(() => {
-          setShowDescription(true);
-        }, 1000);
-      }, convergeDuration);
-    }
-  };
-
-  const calculateBubblePosition = (angle, radius) => {
-    const centerX = 180;
-    const centerY = 180;
+    const centerX = 300;
+    const centerY = 300;
     const radian = (angle * Math.PI) / 180;
     return {
       x: centerX + Math.cos(radian) * radius,
@@ -206,11 +171,117 @@ const WheelPage = () => {
     };
   };
 
-  return (
+  useEffect(() => {
+    const generateWheelBubbles = () => {
+      return games.map((game, index) => {
+        const angle = (360 / games.length) * index;
+        return {
+          id: game.id,
+          colors: game.colors,
+          game: game,
+          baseAngle: angle,
+          currentAngle: angle,
+          radius: 180,
+          baseRadius: 180,
+          size: 60,
+          wobble: {
+            angle: Math.random() * Math.PI * 2,
+            speed: 0.001 + Math.random() * 0.002,
+            radius: 20
+          }
+        };
+      });
+    };
+
+    setWheelBubbles(generateWheelBubbles());
+  }, []);
+
+  useEffect(() => {
+    let animationFrame;
+    let startTime = Date.now();
+
+    const animate = () => {
+      const currentTime = Date.now();
+      const deltaTime = currentTime - startTime;
+
+      setWheelBubbles(prevBubbles => {
+        switch (animationPhase) {
+          case 'spinning':
+            const progress = Math.min((currentTime - startTime) / 1000, 1);
+            return prevBubbles.map(bubble => {
+              const targetRadius = 40;
+              const spinAngle = progress * 720;
+              
+              return {
+                ...bubble,
+                radius: bubble.baseRadius + (targetRadius - bubble.baseRadius) * progress,
+                currentAngle: bubble.baseAngle + spinAngle
+              };
+            });
+
+          case 'finalBubble':
+            return prevBubbles.map(bubble => ({
+              ...bubble,
+              radius: bubble.id === finalBubble?.id ? 40 : bubble.radius,
+              opacity: bubble.id === finalBubble?.id ? 1 : 0,
+              currentAngle: bubble.id === finalBubble?.id ? bubble.baseAngle : bubble.currentAngle,
+              forceCenter: bubble.id === finalBubble?.id
+            }));
+
+          default:
+            return prevBubbles.map(bubble => {
+              const wobbleX = Math.cos(bubble.wobble.angle + deltaTime * bubble.wobble.speed) * bubble.wobble.radius;
+              const wobbleY = Math.sin(bubble.wobble.angle + deltaTime * bubble.wobble.speed) * bubble.wobble.radius;
+              
+              return {
+                ...bubble,
+                currentAngle: bubble.baseAngle + Math.sin(deltaTime * 0.0005) * 5,
+                radius: bubble.baseRadius + Math.sin(deltaTime * 0.001) * 10
+              };
+            });
+        }
+      });
+
+      animationFrame = requestAnimationFrame(animate);
+    };
+
+    animate();
+    return () => cancelAnimationFrame(animationFrame);
+  }, [animationPhase, finalBubble]);
+
+  const spinWheel = () => {
+    if (animationPhase === 'idle') {
+      setAnimationPhase('spinning');
+      const selectedIndex = Math.floor(Math.random() * games.length);
+      const selectedGame = games[selectedIndex];
+  
+      // Phase de convergence (1s)
+      setTimeout(() => {
+        setFinalBubble(wheelBubbles[selectedIndex]);
+        setAnimationPhase('finalBubble');
+  
+        // Phase de bulle finale (0.3s)
+        setTimeout(() => {
+          setSelectedGame(selectedGame);
+          setThemeColors(selectedGame.colors);
+          setAnimationPhase('complete');
+          
+          // Affichage du titre (0.2s)
+          setTimeout(() => {
+            setShowDescription(true);
+            setAnimationPhase('idle');
+          }, 200);
+        }, 300);
+      }, 1000);
+    }
+  };
+
+return (
     <div 
-      className="min-h-screen flex flex-col items-center justify-start pt-12 relative z-10 transition-colors duration-1000"
+      className="min-h-screen flex flex-col items-center justify-start pt-12 relative z-10 transition-all duration-1000"
       style={{
-        backgroundColor: selectedGame ? `${selectedGame.colors.dark}10` : 'transparent'
+        backgroundColor: selectedGame ? `${selectedGame.colors.dark}10` : 'transparent',
+        backgroundImage: selectedGame ? `radial-gradient(circle at center, ${selectedGame.colors.light}05, transparent 70%)` : 'none'
       }}
     >
       {/* Titre et GIFs */}
@@ -220,9 +291,24 @@ const WheelPage = () => {
           alt="Among Us Left"
           className="w-24 h-24 transform -scale-x-100"
         />
-        <h1 className="text-8xl font-bold text-white text-center">
-          {selectedGame ? selectedGame.type : "BONUS ou MALUS"}
-          <span className="block text-6xl mt-2">du CUL</span>
+        <h1 className="text-8xl font-bold text-center transition-colors duration-500">
+          <span style={{ 
+            color: selectedGame 
+              ? selectedGame.colors.light 
+              : '#fff'
+          }}>
+            {selectedGame ? selectedGame.type : "BONUS ou MALUS"}
+          </span>
+          <span 
+            className="block text-6xl mt-2 transition-colors duration-500"
+            style={{ 
+              color: selectedGame 
+                ? selectedGame.colors.main
+                : '#fff' 
+            }}
+          >
+            du CUL
+          </span>
         </h1>
         <img 
           src="/images/AmongUsTwerk.gif"
@@ -233,35 +319,46 @@ const WheelPage = () => {
 
       {/* Cercle mystique avec bulles */}
       <div className="relative w-[600px] h-[600px] mb-12">
+        {/* Lueur d'arrière-plan */}
         <div 
           className="absolute inset-0 rounded-full transition-all duration-1000"
           style={{
             background: selectedGame 
               ? `radial-gradient(circle at center, ${selectedGame.colors.light}20, transparent)`
-              : 'radial-gradient(circle at center, #00C1A010, transparent)',
+              : 'radial-gradient(circle at center, rgba(255,255,255,0.05), transparent)',
             boxShadow: selectedGame 
-              ? `0 0 30px ${selectedGame.colors.main}30`
-              : '0 0 30px rgba(0, 193, 160, 0.1)'
+              ? `0 0 50px ${selectedGame.colors.light}20`
+              : 'none'
           }}
         />
 
-        {/* Bulles animées */}
+        {/* Conteneur des bulles */}
         <div className="absolute inset-0 rounded-full overflow-hidden">
           {wheelBubbles.map(bubble => {
-            const pos = calculateBubblePosition(bubble.angle, bubble.radius);
+            const pos = calculateBubblePosition(bubble.currentAngle, bubble.radius, bubble.forceCenter);
+            const isSelected = animationPhase === 'finalBubble' && bubble.id === finalBubble?.id;
+            
             return (
               <div
                 key={bubble.id}
-                className="absolute rounded-full transition-transform duration-300"
+                className="absolute rounded-full transition-all duration-300"
                 style={{
                   width: `${bubble.size}px`,
                   height: `${bubble.size}px`,
                   left: `${pos.x}px`,
                   top: `${pos.y}px`,
                   transform: 'translate(-50%, -50%)',
-                  background: `radial-gradient(circle at 30% 30%, ${bubble.color}, ${bubble.color}90)`,
-                  boxShadow: `0 0 20px ${bubble.color}50`,
-                  opacity: isSpinning ? '0.6' : '0.8'
+                  background: bubble.colors.gradient,
+                  boxShadow: `0 0 ${isSelected ? '30px' : '20px'} ${bubble.colors.light}${isSelected ? '70' : '50'}`,
+                  opacity: animationPhase === 'finalBubble' 
+                    ? isSelected ? 1 : 0
+                    : animationPhase === 'complete' 
+                      ? 0 
+                      : 1,
+                  transition: isSelected 
+                    ? 'all 0.5s ease-out'
+                    : 'all 0.3s ease-out',
+                  zIndex: isSelected ? 2 : 1
                 }}
               />
             );
@@ -271,63 +368,56 @@ const WheelPage = () => {
         {/* Bouton central */}
         <button
           onClick={spinWheel}
-          disabled={isSpinning}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                   w-32 h-32 rounded-full bg-black/50
-                   hover:bg-[#00C1A0]/30 disabled:opacity-50
-                   transition-all duration-500 group
-                   border border-[#00C1A0]/30
-                   flex items-center justify-center"
+          disabled={animationPhase !== 'idle'}
+          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                     w-32 h-32 rounded-full bg-black/50
+                     hover:bg-black/40 
+                     transition-all duration-500 group
+                     border border-white/20
+                     flex items-center justify-center z-10
+                     ${animationPhase === 'idle' ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+          style={{
+            boxShadow: selectedGame 
+              ? `0 0 30px ${selectedGame.colors.main}30`
+              : 'none'
+          }}
         >
           <span className="text-white/90 text-2xl font-medium">
-            {isSpinning ? "..." : "Invoquer"}
+            Invoquer
           </span>
-          <div className="absolute inset-0 rounded-full 
-                       bg-[#00C1A0]/10 group-hover:bg-[#00C1A0]/20 
-                       animate-ping" />
+          <div className="absolute inset-0 rounded-full opacity-50
+                       bg-white/5 group-hover:bg-white/10 
+                       animate-pulse" />
         </button>
       </div>
 
-      {/* Description du jeu sélectionné */}
-      {selectedGame && showDescription && (
-        <div className="max-w-4xl w-full mx-auto text-center animate-fadeIn"> {/* Augmenté de 3xl à 4xl */}
-  <div className="bg-black/40 backdrop-blur-sm rounded-xl p-12 border border-[#00C1A0]/30"> {/* Padding augmenté */}
-    <h2 className="text-5xl font-bold mb-8" style={{ color: selectedGame.colors.light }}> {/* Taille augmentée */}
+      {/* Titre du mini-jeu sélectionné - Cliquable pour navigation */}
+      {/* Titre du mini-jeu sélectionné - Cliquable pour navigation */}
+{selectedGame && showDescription && (
+  <div className="flex flex-col items-center gap-4 mt-8">
+    <h2 
+      className="text-7xl font-bold text-center relative z-10 transform hover:scale-105 transition-all duration-300"
+      style={{ 
+        color: selectedGame.colors.light,
+        textShadow: `0 0 30px ${selectedGame.colors.light}30`
+      }}
+    >
       {selectedGame.name}
     </h2>
-    
-    <p className="text-3xl mb-10 text-white/90">{selectedGame.shortDesc}</p> {/* Taille augmentée */}
-
-    {selectedGame.preparation.length > 0 && (
-      <div className="mb-8"> {/* Espacement augmenté */}
-        <h3 className="text-2xl font-bold mb-4 text-white">PRÉPARATION :</h3>
-        <ul className="space-y-3 text-xl"> {/* Taille et espacement augmentés */}
-          {selectedGame.preparation.map((prep, index) => (
-            <li key={index} className="text-white/80">{prep}</li>
-          ))}
-        </ul>
-      </div>
-    )}
-
-    <div className="mb-8">
-      <h3 className="text-2xl font-bold mb-4 text-white">{selectedGame.rules.title} :</h3>
-      {selectedGame.rules.content && (
-        <p className="mb-4 text-xl text-white/80">{selectedGame.rules.content}</p>
-      )}
-      <ul className="space-y-3 text-xl">
-        {selectedGame.rules.details.map((detail, index) => (
-          <li key={index} className="text-white/80">{detail}</li>
-        ))}
-      </ul>
-    </div>
-
-    <div className="mt-10 p-6 bg-black/30 rounded-lg"> {/* Padding augmenté */}
-      <h3 className="text-2xl font-bold mb-3 text-white">AVERTISSEMENT :</h3>
-      <p className="text-xl text-white/80">{selectedGame.warning}</p>
-    </div>
+    <button
+      onClick={() => navigate(selectedGame.path)}
+      className="px-12 py-4 rounded-xl text-3xl font-bold transition-all duration-300
+                bg-black/30 border-2 border-transparent hover:border-current
+                transform hover:scale-110"
+      style={{ 
+        color: selectedGame.colors.light,
+        textShadow: `0 0 20px ${selectedGame.colors.light}30`
+      }}
+    >
+      GO !
+    </button>
   </div>
-</div>
-      )}
+)}
 
       <style jsx>{`
         @keyframes fadeIn {
