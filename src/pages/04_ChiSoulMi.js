@@ -1,7 +1,8 @@
-// 04_ChiSoulMi.js - Partie 1: Configuration et States
 import React, { useState, useEffect } from 'react';
+import GameTitle from '../components/GameTitle';
+import GameDescription from '../components/GameDescription';
 
-const ChiSoulMi = () => {
+const ChiSoulMiPage = () => {
   // Configuration des couleurs du jeu
   const gameColors = {
     main: '#8F0016',
@@ -17,7 +18,7 @@ const ChiSoulMi = () => {
     { id: 'rock', image: '/images/Icône du Chi Soul Mi/Pierre.png', label: 'Pierre', beats: ['lizard', 'scissors'] },
     { id: 'lizard', image: '/images/Icône du Chi Soul Mi/Lezard.png', label: 'Lézard', beats: ['paper', 'spock'] },
     { id: 'spock', image: '/images/Icône du Chi Soul Mi/Spock.png', label: 'Spock', beats: ['rock', 'scissors'] }
-];
+  ];
 
   // États du jeu
   const [player1Name, setPlayer1Name] = useState('Joueur 1');
@@ -37,8 +38,9 @@ const ChiSoulMi = () => {
   const [bubbles, setBubbles] = useState([]);
   const [winner, setWinner] = useState(null);
   const [showResult, setShowResult] = useState(false);
-// Gestion des bulles d'arrière-plan
-useEffect(() => {
+
+  // Gestion des bulles d'arrière-plan
+  useEffect(() => {
     const generateBubbles = () => {
       return Array.from({ length: 60 }, (_, i) => ({
         id: i,
@@ -136,6 +138,7 @@ useEffect(() => {
     setShowResult(false);
     setWinner(null);
   };
+
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Bulles d'arrière-plan */}
@@ -157,6 +160,45 @@ useEffect(() => {
           />
         ))}
       </div>
+
+      {/* Titre avec âmichettes */}
+      <GameTitle 
+        title="Chi-Soul-Mi"
+        type="MALUS"
+        colors={gameColors}
+        soulImage="/images/Âmichettes Charly/Amichette_Rouge.gif"
+      />
+
+      {/* Description du jeu */}
+      <GameDescription
+        mainColor="#8F0016"
+        soulImage="/images/Âmichettes Charly/Amichette_Rouge.gif"
+      >
+        <p>
+          <strong>Chi-Soul-Mi</strong> est une version améliorée du traditionnel 
+          Pierre-Papier-Ciseaux, incluant deux nouveaux éléments : Lézard et Spock.
+        </p>
+
+        <div className="space-y-6 pl-8">
+          <p>
+            <strong>Les règles sont les suivantes :</strong>
+          </p>
+          <ul className="list-disc space-y-4">
+            <li>Les Ciseaux coupent le Papier et décapitent le Lézard</li>
+            <li>Le Papier recouvre la Pierre et réfute Spock</li>
+            <li>La Pierre écrase le Lézard et casse les Ciseaux</li>
+            <li>Le Lézard mange le Papier et empoisonne Spock</li>
+            <li>Spock casse les Ciseaux et vaporise la Pierre</li>
+          </ul>
+        </div>
+
+        <div className="bg-black/40 p-6 rounded-lg mt-8">
+          <p>
+            <strong>Mode de jeu :</strong> Le vainqueur est déterminé au meilleur des trois manches.
+            Chaque joueur dispose de 5 secondes pour faire son choix à chaque manche.
+          </p>
+        </div>
+      </GameDescription>
 
       {/* Contenu principal */}
       <div className="relative z-10 p-8">
@@ -339,4 +381,4 @@ useEffect(() => {
   );
 };
 
-export default ChiSoulMi;
+export default ChiSoulMiPage;

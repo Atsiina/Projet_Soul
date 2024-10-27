@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import GameTitle from '../components/GameTitle';
+import GameDescription from '../components/GameDescription';
 
 const LostRelicsPage = () => {
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes par défaut
-  const [initialTime, setInitialTime] = useState(300); // Pour la réinitialisation
+  // États
+  const [timeLeft, setTimeLeft] = useState(300);
+  const [initialTime, setInitialTime] = useState(300);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isBlinking, setIsBlinking] = useState(false);
@@ -15,6 +18,7 @@ const LostRelicsPage = () => {
     gradient: 'linear-gradient(135deg, #E09D0E, #C9880C, #A16C0A)'
   };
 
+  // Effet pour le timer principal
   useEffect(() => {
     let interval;
     if (isRunning && !isPaused && timeLeft > 0) {
@@ -28,6 +32,7 @@ const LostRelicsPage = () => {
     return () => clearInterval(interval);
   }, [isRunning, isPaused, timeLeft, isBlinking]);
 
+  // Effet pour le clignotement
   useEffect(() => {
     let blinkInterval;
     if (isBlinking && blinkCount < 10) {
@@ -42,6 +47,7 @@ const LostRelicsPage = () => {
     return () => clearInterval(blinkInterval);
   }, [isBlinking, blinkCount]);
 
+  // Fonctions de contrôle
   const startTimer = () => {
     setIsRunning(true);
     setIsPaused(false);
@@ -74,32 +80,18 @@ const LostRelicsPage = () => {
     setIsPaused(false);
     setIsBlinking(false);
   };
-
   return (
     <div className="min-h-screen flex flex-col items-center pt-12 relative z-10">
-      {/* En-tête du mini-jeu */}
-      <header className="w-full max-w-6xl mx-auto text-center mb-12">
-        <h1 
-          className="text-8xl font-bold mb-4"
-          style={{
-            background: gameColors.gradient,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            textShadow: `0 0 30px ${gameColors.light}30`
-          }}
-        >
-          Les Reliques Perdues
-        </h1>
-        <div 
-          className="text-4xl font-bold mb-8"
-          style={{ color: gameColors.light }}
-        >
-          BONUS
-        </div>
-      </header>
+      {/* Titre avec les âmichettes */}
+      <GameTitle 
+        title="Les Reliques Perdues"
+        type="BONUS"
+        colors={gameColors}
+        soulImage="/images/Âmichettes Charly/Amichette_Doré.gif"
+      />
 
       {/* Section Chronomètre */}
-      <div className="bg-black/40 backdrop-blur-sm rounded-xl p-8 border-2 transition-all duration-300 w-full max-w-2xl mx-auto"
+      <div className="bg-black/40 backdrop-blur-sm rounded-xl p-8 border-2 transition-all duration-300 w-full max-w-2xl mx-auto mb-12"
            style={{ borderColor: `${gameColors.main}30` }}>
         {/* Affichage du temps */}
         <div className={`text-8xl font-bold text-center mb-8 transition-opacity duration-500
@@ -132,7 +124,6 @@ const LostRelicsPage = () => {
 
           {/* Boutons de contrôle */}
           <div className="flex justify-center gap-4">
-            {/* Bouton Start/Pause */}
             {!isRunning ? (
               <button
                 onClick={startTimer}
@@ -161,7 +152,6 @@ const LostRelicsPage = () => {
               </button>
             )}
 
-            {/* Bouton Reset */}
             {(isRunning || isPaused) && (
               <button
                 onClick={resetTimer}
@@ -179,6 +169,44 @@ const LostRelicsPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Description avec nouvelle police */}
+      <GameDescription
+        mainColor="#C9880C"
+        soulImage="/images/Âmichettes Charly/Amichette_Doré.gif"
+      >
+        <p>
+          <strong>Les Reliques Perdues</strong> est un mini-jeu bonus où le temps est votre allié. Vous devez retrouver 
+          des reliques mystérieuses avant que le chronomètre n'atteigne zéro.
+        </p>
+        
+        <div className="space-y-6 pl-8">
+          <p>
+            <strong>Comment jouer :</strong>
+          </p>
+          <ul className="list-disc space-y-4">
+            <li>
+              Sélectionnez votre temps de jeu parmi les différentes durées proposées
+            </li>
+            <li>
+              Appuyez sur <strong>GO !</strong> pour lancer le chronomètre
+            </li>
+            <li>
+              Utilisez le bouton <strong>Pause</strong> si nécessaire
+            </li>
+            <li>
+              Le chronomètre clignotera lorsque le temps sera écoulé
+            </li>
+          </ul>
+        </div>
+
+        <div className="bg-black/40 p-6 rounded-lg mt-8">
+          <p>
+            <strong>Astuce :</strong> Gardez un œil sur le temps ! Une bonne gestion du chronomètre 
+            est la clé pour retrouver toutes les reliques.
+          </p>
+        </div>
+      </GameDescription>
 
       {/* Styles pour l'animation de clignotement */}
       <style jsx>{`
