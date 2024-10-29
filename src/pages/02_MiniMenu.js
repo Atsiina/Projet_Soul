@@ -9,39 +9,6 @@ const MiniMenuPage = () => {
   const { setThemeColors } = useThemeColors();
   const [bubbles, setBubbles] = useState([]);
 
-  const colorThemes = [
-    {
-      main: '#8F0016',
-      light: '#B30025',
-      dark: '#6B0011',
-      gradient: 'linear-gradient(135deg, #B30025, #8F0016, #6B0011)'
-    },
-    {
-      main: '#00A2E8',
-      light: '#33B5ED',
-      dark: '#0081BA',
-      gradient: 'linear-gradient(135deg, #33B5ED, #00A2E8, #0081BA)'
-    },
-    {
-      main: '#00C1A0',
-      light: '#00D9B5',
-      dark: '#00A88B',
-      gradient: 'linear-gradient(135deg, #00D9B5, #00C1A0, #00A88B)'
-    },
-    {
-      main: '#C9880C',
-      light: '#E09D0E',
-      dark: '#A16C0A',
-      gradient: 'linear-gradient(135deg, #E09D0E, #C9880C, #A16C0A)'
-    },
-    {
-      main: '#A349A4',
-      light: '#B66DB7',
-      dark: '#822683',
-      gradient: 'linear-gradient(135deg, #B66DB7, #A349A4, #822683)'
-    }
-  ];
-
   // Configuration des jeux et de leurs âmichettes
   const games = [
     {
@@ -89,6 +56,7 @@ const MiniMenuPage = () => {
       phaseOffset: 2.7,
       speedMultiplier: 0.18
     },
+
     {
       name: "Quête des âmes",
       path: '/games/quete-des-ames',
@@ -127,7 +95,6 @@ const MiniMenuPage = () => {
       return Array.from({ length: 60 }, (_, i) => {
         const size = Math.random() * (200 - 30) + 30;
         const glowIntensity = (200 - size) / 200;
-        const colorTheme = colorThemes[Math.floor(Math.random() * colorThemes.length)];
         
         return {
           id: i,
@@ -137,8 +104,7 @@ const MiniMenuPage = () => {
           delay: Math.random() * 10,
           duration: Math.random() * (30 - 15) + 15,
           hasGlow: Math.random() > 0.4,
-          glowIntensity: glowIntensity,
-          colorTheme: colorTheme
+          glowIntensity: glowIntensity
         };
       });
     };
@@ -177,20 +143,20 @@ const MiniMenuPage = () => {
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden flex items-center justify-center">
-      {/* Fond avec bulles multicolores */}
+      {/* Fond avec bulles vertes */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {bubbles.map((bubble) => (
           <div
             key={bubble.id}
-            className="absolute rounded-full transition-colors duration-1000"
+            className="absolute rounded-full transition-all duration-1000"
             style={{
               width: `${bubble.size}px`,
               height: `${bubble.size}px`,
               left: `${bubble.left}%`,
               top: `${bubble.top}%`,
-              background: bubble.colorTheme.gradient,
+              background: `linear-gradient(135deg, #00C1A0, #008B71, #00755E)`,
               animation: `float ${bubble.duration}s ease-in-out ${bubble.delay}s infinite`,
-              filter: bubble.hasGlow ? `drop-shadow(0 0 ${8 * bubble.glowIntensity}px ${bubble.colorTheme.light}${0.3 * bubble.glowIntensity})` : 'none',
+              filter: bubble.hasGlow ? `drop-shadow(0 0 ${8 * bubble.glowIntensity}px rgba(0, 193, 160, ${0.3 * bubble.glowIntensity}))` : 'none',
               opacity: bubble.hasGlow ? 0.1 + (bubble.glowIntensity * 0.1) : 0.1
             }}
           />

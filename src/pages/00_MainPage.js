@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Award, Gamepad2, Users, RotateCw, Plus, Minus } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Minus } from 'lucide-react';
 import GameDescription from '../components/GameDescription';
+import MainPagePlanning from '../components/MainPagePlanning';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 const MainPage = () => {
-  const [bubbles, setBubbles] = useState([]);
   const [scores, setScores] = useState([
     { id: 1, player: "Charly", souls: 0 },
     { id: 2, player: "Zaza", souls: 0 },
@@ -28,60 +29,20 @@ const MainPage = () => {
     );
   };
 
-  useEffect(() => {
-    const generateBubbles = () => {
-      const newBubbles = Array.from({ length: 60 }, (_, i) => {
-        const size = Math.random() * (200 - 30) + 30;
-        const glowIntensity = (200 - size) / 200;
-        
-        return {
-          id: i,
-          size: size,
-          left: Math.random() * 100,
-          top: Math.random() * 300,
-          delay: Math.random() * 10,
-          duration: Math.random() * (30 - 15) + 15,
-          hasGlow: Math.random() > 0.4,
-          glowIntensity: glowIntensity
-        };
-      });
-      setBubbles(newBubbles);
-    };
-
-    generateBubbles();
-  }, []);
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Bulles en arrière-plan */}
-      <div className="fixed inset-0 pointer-events-none">
-        {bubbles.map((bubble) => (
-          <div
-            key={bubble.id}
-            className="absolute rounded-full transition-all duration-1000"
-            style={{
-              width: `${bubble.size}px`,
-              height: `${bubble.size}px`,
-              left: `${bubble.left}%`,
-              top: `${bubble.top}%`,
-              background: `linear-gradient(135deg, #00C1A0, #008B71, #00755E)`,
-              animation: `float ${bubble.duration}s ease-in-out ${bubble.delay}s infinite`,
-              filter: bubble.hasGlow ? `drop-shadow(0 0 ${8 * bubble.glowIntensity}px rgba(0, 193, 160, ${0.3 * bubble.glowIntensity}))` : 'none',
-              opacity: bubble.hasGlow ? 0.1 + (bubble.glowIntensity * 0.1) : 0.1
-            }}
-          />
-        ))}
-      </div>
+      <AnimatedBackground />
 
       {/* Hero Section */}
-      <header className="relative z-10 pt-20 text-center">
-        {/* Titre de l'événement avec effet dégradé amélioré */}
-        <div className="flex items-center justify-center gap-12 mb-0.10">
+      <header className="relative z-10 pt-16 text-center">
+        {/* Titre Soul On-Lan */}
+        <div className="flex items-center justify-center gap-8 mb-0.10">
           <img 
             src="/images/Âmichettes Charly/Amichette_Verte.gif"
             alt="Soul Animation Left"
-            className="w-40 object-contain transform -scale-x-100"
+            className="w-20 object-contain transform -scale-x-100"
           />
-          <h1 className="text-[150px] font-bold tracking-wider relative">
+          <h1 className="text-9xl font-bold tracking-wider relative">
             <span className="absolute inset-0 bg-gradient-to-b from-[#00C1A0] via-[#008B71] to-[#00755E] opacity-90 
                          bg-clip-text text-transparent z-10">
               Soul On-Lan
@@ -98,12 +59,12 @@ const MainPage = () => {
           <img 
             src="/images/Âmichettes Charly/Amichette_Verte.gif"
             alt="Soul Animation Right"
-            className="w-40 object-contain"
+            className="w-20 object-contain"
           />
         </div>
 
-        {/* Logo animé */}
-        <div className="w-[414px] h-[414px] mx-auto mb-2">
+        {/* Logo Soul Eater */}
+        <div className="w-[350px] h-[350px] mx-auto mb-2">
           <img 
             src="/images/Soul_Eater_Logo_VVert_avec_âmichette.gif"
             alt="Logo Soul Eater"
@@ -112,33 +73,31 @@ const MainPage = () => {
         </div>
 
         {/* Titres */}
-        <div className="relative max-w-6xl mx-auto px-4 -mt-6">
+        <div className="relative max-w-4xl mx-auto px-4 -mt-6">
           <img 
             src="/images/Logo_Fairy_Tail.png"
             alt="Fairy Tail Left"
-            className="absolute left-40 top-1/2 -translate-y-1/2 h-32 transform -scale-x-100"
+            className="absolute left-36 top-1/2 -translate-y-1/2 h-28 transform -scale-x-100"
           />
           <img 
             src="/images/Logo_Fairy_Tail.png"
             alt="Fairy Tail Right"
-            className="absolute right-40 top-1/2 -translate-y-1/2 h-32"
+            className="absolute right-36 top-1/2 -translate-y-1/2 h-28"
           />
-          <h1 className="text-9xl font-bold mb-4" style={{ color: '#00755E' }}>
+          <h1 className="text-8xl font-bold mb-4" style={{ color: '#00755E' }}>
             Soul Eaters
           </h1>
-          <div className="absolute right-[20.4rem] -top-6">
-            <p className="text-6xl text-white">Ba Fuii</p>
+          <div className="absolute right-[17rem] -top-5">
+            <p className="text-5xl text-white">Ba Fuii</p>
           </div>
         </div>
-
-        {/* Date */}
-        <p className="relative z-10 text-4xl mt-8 mb-12 text-white font-bold">
-          01 Novembre - 03 Novembre
-        </p>
       </header>
 
-{/* Description avec la nouvelle police */}
-<GameDescription 
+      {/* Planning Section avec la date intégrée */}
+      <MainPagePlanning />
+
+      {/* Description */}
+      <GameDescription 
         mainColor="#00755E"
         soulImage="/images/Âmichettes Charly/Amichette_Verte.gif"
       >
@@ -199,7 +158,7 @@ const MainPage = () => {
         </p>
       </GameDescription>
 
-      {/* Section Classement avec nouvelle police pour le contenu */}
+      {/* Section Classement */}
       <section className="relative z-10 max-w-6xl mx-auto py-16 px-4">
         <div className="bg-gradient-to-b from-black/90 to-[#00755E]/50 backdrop-blur-md p-8 rounded-xl shadow-lg border border-[#00755E]/20">
           <div className="flex items-center gap-4 mb-8">
@@ -208,11 +167,9 @@ const MainPage = () => {
               alt="Soul Icon"
               className="w-16 h-16 object-contain -translate-y-2.5"
             />
-            {/* Le titre reste en Taurunum Ferrum */}
             <h2 className="text-5xl text-white font-bold">Classement</h2>
           </div>
 
-          {/* Contenu du tableau en Bree Serif */}
           <div className="overflow-x-auto">
             <table className="w-full text-white">
               <thead>
@@ -284,23 +241,6 @@ const MainPage = () => {
           </a>
         </div>
       </section>
-
-      {/* Style pour l'animation des bulles */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0) translateX(0) scale(1);
-          }
-          50% {
-            transform: translateY(-50px) translateX(20px
-
-transform: translateY(-50px) translateX(20px) scale(1.1);
-          }
-          75% {
-            transform: translateY(-25px) translateX(-20px) scale(1.05);
-          }
-        }
-      `}</style>
     </div>
   );
 };

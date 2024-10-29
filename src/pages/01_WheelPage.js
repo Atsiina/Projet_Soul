@@ -247,11 +247,11 @@ const WheelPage = () => {
         <img 
           src={selectedGame 
             ? selectedGame.soulImage 
-            : "/images/Âmichettes Charly/Amichette_Verte.gif"}
+            : "/images/AmongUsTwerk.gif"}
           alt="Soul Animation Left"
           className="w-40 h-40 object-contain transform -scale-x-100"
         />
-        <h1 className="text-9xl font-bold text-center transition-colors duration-500">
+        <h1 className="text-8xl font-bold text-center transition-colors duration-500">
           <span style={{ 
             color: selectedGame 
               ? selectedGame.colors.light 
@@ -273,7 +273,7 @@ const WheelPage = () => {
         <img 
           src={selectedGame 
             ? selectedGame.soulImage 
-            : "/images/Âmichettes Charly/Amichette_Verte.gif"}
+            : "/images/AmongUsTwerk.gif"}
           alt="Soul Animation Right"
           className="w-40 h-40 object-contain"
         />
