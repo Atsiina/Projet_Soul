@@ -1,6 +1,6 @@
 import React from 'react';
 
-const GameDescription = ({ mainColor, soulImage, children }) => {
+const GameDescription = ({ mainColor, soulImage, title = "Description", titleColor = "text-white", children }) => {
   return (
     <section className="w-full max-w-6xl mx-auto mt-12 px-4">
       <div 
@@ -10,13 +10,18 @@ const GameDescription = ({ mainColor, soulImage, children }) => {
           borderColor: `${mainColor}20`
         }}
       >
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center justify-center gap-4 mb-8">
           <img 
             src={soulImage}
-            alt="Soul Icon"
-            className="w-16 h-16 object-contain -translate-y-2.5"
+            alt="Soul Icon Left"
+            className="w-16 h-16 object-contain transform -scale-x-100"
           />
-          <h2 className="text-5xl text-white font-bold">Description</h2>
+          <h2 className={`text-5xl font-bold ${titleColor}`}>{title}</h2>
+          <img 
+            src={soulImage}
+            alt="Soul Icon Right"
+            className="w-16 h-16 object-contain"
+          />
         </div>
 
         <div className="space-y-8 text-white text-2xl leading-relaxed description-content">
