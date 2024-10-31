@@ -24,7 +24,7 @@ const PlanningSection = () => {
     },
     {
       name: "Samedi",
-      time: "21:00",
+      time: "16:00",
       color: "#0088FF",
       gifPath: "/images/Âmichettes Charly/Amichette_Bleu.gif",
       games: [
@@ -44,7 +44,7 @@ const PlanningSection = () => {
     },
     {
       name: "Dimanche",
-      time: "14:00",
+      time: "21:00",
       color: "#B860FF",
       gifPath: "/images/Âmichettes Charly/Amichette_Mauve.gif",
       games: [

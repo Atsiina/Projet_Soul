@@ -98,9 +98,9 @@ const MainPage = () => {
         title="Rappel"
         titleColor="text-blue-500"
       >
-        <div className="flex flex-col items-center space-y-8">
+        <div className="flex flex-col items-center space-y-7">
           <p className="text-center">
-            Devient le <img src="/images/Soul_Eater_Logo_VGold.png" alt="Soul King Logo" className="inline-block h-6 mx-1" /> 
+            Devient le <img src="/images/SoulKing.png" alt="Soul King Logo" className="inline-block h-6 mx-1" /> 
             <strong className="text-yellow-500">@👑Soul King🤘</strong> en collectant plus d'âmes que tes adversaires pendant trois jours, 
             dans un tournoi épique alliant adresse, connaissance et endurance sur divers jeux, 
             quizz avec un Mini-Jeu Bonus pour t'aider durant ta chasse. 
@@ -115,7 +115,7 @@ const MainPage = () => {
             <div className="space-y-4">
               <p>
                 <strong>N°1 :</strong> Le premier recevra <strong>un titre unique</strong> sur le discord 
-                <img src="/images/Soul_Eater_Logo_VGold.png" alt="Soul King Logo" className="inline-block h-6 mx-1" />
+                <img src="/images/SoulKing.png" alt="Soul King Logo" className="inline-block h-6 mx-1" />
                 <strong className="text-yellow-500">@👑Soul King🤘</strong>, 
                 qui montrera à tous l'étendue de son skill ! 
                 <span className="line-through">(Ou pas)</span> 

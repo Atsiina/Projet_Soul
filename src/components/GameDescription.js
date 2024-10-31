@@ -1,6 +1,6 @@
 import React from 'react';
 
-const GameDescription = ({ mainColor, soulImage, title = "Description", titleColor = "text-white", children }) => {
+const EventDescription = ({ mainColor, soulImage, title = "Description", titleColor = "text-white", children }) => {
   return (
     <section className="w-full max-w-6xl mx-auto mt-12 px-4">
       <div 
@@ -32,4 +32,4 @@ const GameDescription = ({ mainColor, soulImage, title = "Description", titleCol
   );
 };
 
-export default GameDescription;
+export default EventDescription;

@@ -257,7 +257,7 @@ const ThanksPage = () => {
 
       {/* Texte central */}
       <div className="relative flex items-center justify-center z-10 pt-40">
-        <div className="text-center text-white max-w-4xl px-4">
+        <div className="text-center text-white max-w-3xl px-4">
           <h1 
             className="text-5xl font-bold mb-6 font-['Taurunum Ferrum']"
             style={{
@@ -277,7 +277,7 @@ const ThanksPage = () => {
               Ce moment que nous partageons aujourd'hui existe <strong>grâce à vous et pour vous</strong>. Votre présence, vos rires, et cette incroyable diversité de personnalités qui ont créé tant de souvenirs font de notre lien <strong>un véritable trésor</strong>, qui va bien au-delà des écrans.
             </p>
             <p>
-              Merci d'être là, d'être vous-mêmes, et de rendre chaque partie mémorable. Que cet événement soit à la hauteur de tout ce que vous m'apportez depuis des années !
+              Merci d'être là, d'être vous-mêmes, et de rendre chaque partie mémorable. <strong>Que cet événement soit à la hauteur de tout ce que vous m'apportez depuis des années !</strong>
             </p>
             <p className="font-bold">
             Vous êtes les âmes inestimables de notre aventure.
