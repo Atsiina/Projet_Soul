@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import GameTitle from '../components/GameTitle';
 import GameDescription from '../components/GameDescription';
+import ScrollbarTheme from '../components/ScrollbarTheme';
 
 const SoulEchoPage = () => {
   const gameColors = {
@@ -263,7 +264,27 @@ const SoulEchoPage = () => {
           }
         }
       `}</style>
-    </div>
+      {/* Barre de Défilement */}
+      <style jsx>{`
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(130, 38, 131, 0.1);
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(182, 109, 183, 0.3);
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(182, 109, 183, 0.5);
+      }
+    `}</style>
+  </div>
   );
 };
 

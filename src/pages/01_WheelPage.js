@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useThemeColors } from '../context/ColorContext';
 import GameTitle from '../components/GameTitle';
+import ScrollbarTheme from '../components/ScrollbarTheme';
 
 const WheelPage = () => {
   const navigate = useNavigate();
@@ -242,6 +243,7 @@ const WheelPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start pt-6 relative z-10">
+      <ScrollbarTheme />
       {/* Titre et GIFs */}
       <div className="flex items-center justify-center gap-12 mb-8 mt-24">
         <img 
@@ -385,7 +387,27 @@ const WheelPage = () => {
           50% { transform: translateY(-20px) scale(1.05); }
         }
       `}</style>
-    </div>
+      {/* Barre de Défilement */}
+      <style jsx>{`
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: ${selectedGame ? `${selectedGame.colors.dark}10` : 'rgba(0, 168, 139, 0.1)'};
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: ${selectedGame ? `${selectedGame.colors.light}30` : 'rgba(0, 217, 181, 0.3)'};
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: ${selectedGame ? `${selectedGame.colors.light}50` : 'rgba(0, 217, 181, 0.5)'};
+      }
+    `}</style>
+  </div>
   );
 };
 
