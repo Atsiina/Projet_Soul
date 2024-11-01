@@ -15,6 +15,13 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Bree Serif';
+  src: url('../public/fonts/BreeSerif-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -27,6 +34,10 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Taurunum Ferrum', sans-serif;
+}
+
+.description-content {
+  font-family: 'Bree Serif', serif;
 }
 
 .floating-element {
@@ -79,3 +90,21 @@ h1, h2, h3, h4, h5, h6 {
   pointer-events: none;
 }
 
+/* Personnalisation de la barre de défilement */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 117, 94, 0.1);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 193, 160, 0.3);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 193, 160, 0.5);
+}

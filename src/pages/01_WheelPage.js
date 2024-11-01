@@ -1,267 +1,330 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useThemeColors } from '../context/ColorContext';
+import GameTitle from '../components/GameTitle';
+import ScrollbarTheme from '../components/ScrollbarTheme';
 
-// Configuration des couleurs pour chaque mini-jeu
-const gameColors = {
-  questDesAmes: {
-    main: '#00C1A0',
-    light: '#33CFB3',
-    dark: '#00A88B'
-  },
-  echoDeLAme: {
-    main: '#008B71',
-    light: '#00A88B',
-    dark: '#007761'
-  },
-  chiSoulMi: {
-    main: '#00755E',
-    light: '#008B71',
-    dark: '#005F4C'
-  },
-  reliquesPerdues: {
-    main: '#006B55',
-    light: '#008B71',
-    dark: '#005544'
-  },
-  labyrintheDeLEsprit: {
-    main: '#005F4C',
-    light: '#007761',
-    dark: '#004C3D'
-  }
-};
-
-const games = [
-  {
-    id: 'questDesAmes',
-    name: "Quête des âmes",
-    type: "BONUS",
-    colors: gameColors.questDesAmes,
-    shortDesc: "Les esprits vous confient trois quêtes mystérieuses pour prouver votre valeur...",
-    preparation: [
-      "Pour chaque quête, murmurez un chiffre entre 0 et 6 au Maître du Jeu",
-      "Chaque participant reçoit 3 quêtes secrètes par message privé du Maître du Jeu"
-    ],
-    rules: {
-      title: "RÈGLE DU DESTIN",
-      content: "À chaque fois qu'un chiffre a déjà été murmuré par un autre participant, la difficulté de la quête s'intensifie :",
-      details: [
-        "Facile devient Normal",
-        "Normal devient Difficile",
-        "Difficile devient Extrême"
-      ]
-    },
-    warning: "Les forces obscures ne permettent qu'une seule quête Extrême par lot de trois."
-  },
-
-  {
-    id: 'echoDeLAme',
-    name: "Écho de l'Âme",
-    type: "BONUS",
-    colors: gameColors.echoDeLAme,
-    shortDesc: "Les mots ont du pouvoir, et certains résonnent plus que d'autres...",
-    preparation: [
-      "Vous recevrez l'une des trois listes de mots mystiques existantes",
-      "Lire ce que chaque mot demande de faire"
-    ],
-    rules: {
-      title: "RÈGLE DE RÉSONANCE",
-      content: "Quand un mot de votre liste résonne comme un écho, votre âme doit réagir immédiatement :",
-      details: [
-        "Par un chant",
-        "Par des paroles",
-        "Par des gestes",
-        "Ou par bien d'autres manifestations..."
-      ]
-    },
-    warning: "Restez vigilant, car les mots peuvent surgir à tout moment."
-  },
-  {
-    id: 'chiSoulMi',
-    name: "Chi-Soul-Mi",
-    type: "MALUS",
-    colors: gameColors.chiSoulMi,
-    shortDesc: "Un duel d'âmes où le hasard et la stratégie s'entremêlent...",
-    preparation: [],
-    rules: {
-      title: "RÈGLES DU DUEL",
-      content: "",
-      details: [
-        "Les duels se jouent en 3 manches",
-        "Les adversaires choisissent ensemble une liste de jeux possibles et le nombre d'âmes à parier",
-        "Le vainqueur du Chi-Soul-Mi invoque le jeu de son choix",
-        "Si le participant n'a pas fait tous les duels qui lui était possible de faire il à -15 âmes par duel non joué"
-      ]
-    },
-    warning: "Si le duel finit en 3-0, le gagnant peut prendre la totalité des âmes de l'adversaire... Choisissez vos jeux avec sagesse."
-  },
-  {
-    id: 'reliquesPerdues',
-    name: "Les Reliques Perdues",
-    type: "BONUS",
-    colors: gameColors.reliquesPerdues,
-    shortDesc: "Les âmes anciennes ont laissé derrière elles des reliques puissantes. Saurez-vous les retrouver avant les autres ?",
-    preparation: [
-      "Le Maître du Jeu cache des indices dans les différents canaux Discord ou dans les messages passés des participants",
-      "Chaque participant reçoit une description d'une relique à retrouver"
-    ],
-    rules: {
-      title: "RÈGLES DE RECHERCHE",
-      content: "",
-      details: [
-        "Chaque indice trouvé permet de se rapprocher de la relique",
-        "Le premier participant à trouver la relique gagne un avantage pour la prochaine épreuve",
-        "Des pièges mystiques peuvent détourner les plus impatients"
-      ]
-    },
-    warning: "Certaines reliques sont maudites... Prudence lors de votre quête !"
-  },
-  {
-    id: 'labyrintheDeLEsprit',
-    name: "Labyrinthe de l'Esprit",
-    type: "MALUS",
-    colors: gameColors.labyrintheDeLEsprit,
-    shortDesc: "Votre esprit est perdu dans un labyrinthe mystique. Seule la logique pourra vous guider vers la sortie...",
-    preparation: [
-      "Le Maître du Jeu crée un \"labyrinthe\" sous forme d'énigmes, chaque sortie d'énigme menant à une nouvelle salle (ou sortie)",
-      "Chaque joueur commence dans une salle différente et reçoit sa première énigme par message privé"
-    ],
-    rules: {
-      title: "RÈGLES DU LABYRINTHE",
-      content: "",
-      details: [
-        "Chaque joueur a 3 minutes pour résoudre son énigme",
-        "Une mauvaise réponse ajoute un obstacle, ralentissant le joueur",
-        "Le premier joueur à trouver la sortie remporte une récompense mystique"
-      ]
-    },
-    warning: "Ne vous égarez pas trop longtemps, ou les murs du labyrinthe commenceront à se resserrer..."
-  }
-];
 const WheelPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setThemeColors } = useThemeColors();
   const [isSpinning, setIsSpinning] = useState(false);
   const [selectedGame, setSelectedGame] = useState(null);
   const [showDescription, setShowDescription] = useState(false);
   const [wheelBubbles, setWheelBubbles] = useState([]);
+  const [finalBubble, setFinalBubble] = useState(null);
+  const [animationPhase, setAnimationPhase] = useState('idle');
 
-  // Logique d'animation (comme dans la troisième partie)
-  useEffect(() => {
-    const generateWheelBubbles = () => {
-      return games.map((game, index) => ({
-        id: game.id,
-        color: game.colors.main,
-        angle: (360 / games.length) * index,
-        radius: 200, // Augmenté pour suivre la nouvelle taille de roue
-        size: Math.random() * (80 - 60) + 60, // Bulles plus grandes
+  const games = [
+    {
+      name: "Quête des âmes",
+      type: "BONUS",
+      path: '/games/quete-des-ames',
+      soulImage: '/images/Âmichettes Charly/Amichette_Bleu.gif',
+      colors: {
+        main: '#00A2E8',
+        light: '#33B5ED',
+        dark: '#0081BA',
+        gradient: 'linear-gradient(135deg, #33B5ED, #00A2E8, #0081BA)'
+      }
+    },
+    {
+      name: "Écho de l'Âme",
+      type: "BONUS",
+      path: '/games/echo-de-lame',
+      soulImage: '/images/Âmichettes Charly/Amichette_Mauve.gif',
+      colors: {
+        main: '#A349A4',
+        light: '#B66DB7',
+        dark: '#822683',
+        gradient: 'linear-gradient(135deg, #B66DB7, #A349A4, #822683)'
+      }
+    },
+    {
+      name: "Chi-Soul-Mi",
+      type: "MALUS",
+      path: '/games/chi-soul-mi',
+      soulImage: '/images/Âmichettes Charly/Amichette_Rouge.gif',
+      colors: {
+        main: '#8F0016',
+        light: '#B30025',
+        dark: '#6B0011',
+        gradient: 'linear-gradient(135deg, #B30025, #8F0016, #6B0011)'
+      }
+    },
+    {
+      name: "Les Reliques Perdues",
+      type: "BONUS",
+      path: '/games/reliques-perdues',
+      soulImage: '/images/Âmichettes Charly/Amichette_Doré.gif',
+      colors: {
+        main: '#C9880C',
+        light: '#E09D0E',
+        dark: '#A16C0A',
+        gradient: 'linear-gradient(135deg, #E09D0E, #C9880C, #A16C0A)'
+      }
+    },
+    {
+      name: "Labyrinthe de l'Esprit",
+      type: "MALUS",
+      path: '/games/labyrinthe',
+      soulImage: '/images/Âmichettes Charly/Amichette_Verte.gif',
+      colors: {
+        main: '#00C1A0',
+        light: '#00D9B5',
+        dark: '#00A88B',
+        gradient: 'linear-gradient(135deg, #00D9B5, #00C1A0, #00A88B)'
+      }
+    }
+  ];
+
+  const initializeWheelBubbles = () => {
+    return games.map((game, index) => {
+      const angle = (360 / games.length) * index;
+      return {
+        id: game.name,
+        colors: game.colors,
+        game: game,
+        baseAngle: angle,
+        currentAngle: angle,
+        radius: 180,
+        baseRadius: 180,
+        size: 60,
+        opacity: 1,
         wobble: {
-          radius: Math.random() * 30, // Plus d'amplitude
-          speed: Math.random() * (2 - 0.5) + 0.5 // Vitesse réduite
-        }
-      }));
-    };
+          angle: Math.random() * Math.PI * 2,
+          speed: 0.001 + Math.random() * 0.002,
+          radius: 20
+        },
+        position: { x: 0, y: 0 },
+        forceCenter: false
+      };
+    });
+  };
 
-    setWheelBubbles(generateWheelBubbles());
+  useEffect(() => {
+    setWheelBubbles(initializeWheelBubbles());
   }, []);
 
   useEffect(() => {
-    if (!isSpinning) {
-      const animateWheelBubbles = () => {
-        setWheelBubbles(prev => prev.map(bubble => ({
-          ...bubble,
-          angle: bubble.angle + (bubble.wobble.speed * 0.05), // Réduit de 0.1 à 0.05
-          radius: bubble.radius + Math.sin(Date.now() / 2000 * bubble.wobble.speed) * bubble.wobble.radius // Ralentit la pulsation
-        })));
-      };
+    let animationFrame;
+    let startTime = Date.now();
 
-      const intervalId = setInterval(animateWheelBubbles, 50);
-      return () => clearInterval(intervalId);
-    }
-  }, [isSpinning]);
+    const animate = () => {
+      const currentTime = Date.now();
+      const deltaTime = currentTime - startTime;
+
+      setWheelBubbles(prevBubbles => {
+        switch (animationPhase) {
+          case 'spinning':
+            const progress = Math.min((currentTime - startTime) / 1000, 1);
+            return prevBubbles.map(bubble => {
+              const targetRadius = 40;
+              const spinAngle = progress * 720;
+              const wobbleX = Math.cos(bubble.wobble.angle + deltaTime * bubble.wobble.speed) * 
+                            (bubble.wobble.radius * (1 - progress));
+              const wobbleY = Math.sin(bubble.wobble.angle + deltaTime * bubble.wobble.speed) * 
+                            (bubble.wobble.radius * (1 - progress));
+              
+              return {
+                ...bubble,
+                radius: bubble.baseRadius + (targetRadius - bubble.baseRadius) * progress,
+                currentAngle: bubble.baseAngle + spinAngle,
+                position: {
+                  x: wobbleX,
+                  y: wobbleY
+                }
+              };
+            });
+
+          case 'finalBubble':
+            return prevBubbles.map(bubble => {
+              if (bubble.id === finalBubble?.id) {
+                return {
+                  ...bubble,
+                  radius: 40,
+                  opacity: 1,
+                  currentAngle: bubble.baseAngle,
+                  forceCenter: true,
+                  position: { x: 0, y: 0 }
+                };
+              }
+              const wobbleX = Math.cos(bubble.wobble.angle + deltaTime * bubble.wobble.speed) * bubble.wobble.radius;
+              const wobbleY = Math.sin(bubble.wobble.angle + deltaTime * bubble.wobble.speed) * bubble.wobble.radius;
+              
+              return {
+                ...bubble,
+                opacity: 0.5,
+                currentAngle: bubble.baseAngle + Math.sin(deltaTime * 0.0005) * 5,
+                radius: bubble.baseRadius + Math.sin(deltaTime * 0.001) * 10,
+                position: {
+                  x: wobbleX,
+                  y: wobbleY
+                }
+              };
+            });
+
+          default:
+            return prevBubbles.map(bubble => {
+              const wobbleX = Math.cos(bubble.wobble.angle + deltaTime * bubble.wobble.speed) * bubble.wobble.radius;
+              const wobbleY = Math.sin(bubble.wobble.angle + deltaTime * bubble.wobble.speed) * bubble.wobble.radius;
+              
+              return {
+                ...bubble,
+                opacity: 1,
+                forceCenter: false,
+                currentAngle: bubble.baseAngle + Math.sin(deltaTime * 0.0005) * 5,
+                radius: bubble.baseRadius + Math.sin(deltaTime * 0.001) * 10,
+                position: {
+                  x: wobbleX,
+                  y: wobbleY
+                }
+              };
+            });
+        }
+      });
+
+      animationFrame = requestAnimationFrame(animate);
+    };
+
+    animate();
+    return () => cancelAnimationFrame(animationFrame);
+  }, [animationPhase, finalBubble]);
 
   const spinWheel = () => {
     if (!isSpinning) {
       setIsSpinning(true);
       setShowDescription(false);
+      setSelectedGame(null);
+      setFinalBubble(null);
+      setAnimationPhase('idle');
       
-      const convergeDuration = 3000;
-      const selectedIndex = Math.floor(Math.random() * games.length);
-      const selectedGame = games[selectedIndex];
+      setWheelBubbles(initializeWheelBubbles());
 
       setTimeout(() => {
-        setSelectedGame(selectedGame);
-        setIsSpinning(false);
+        setAnimationPhase('spinning');
+        const selectedIndex = Math.floor(Math.random() * games.length);
+        const selectedGame = games[selectedIndex];
         
         setTimeout(() => {
-          setShowDescription(true);
+          setFinalBubble(wheelBubbles[selectedIndex]);
+          setAnimationPhase('finalBubble');
+    
+          setTimeout(() => {
+            setSelectedGame(selectedGame);
+            
+            setTimeout(() => {
+              setShowDescription(true);
+              setThemeColors(selectedGame.colors);
+              setIsSpinning(false);
+            }, 200);
+          }, 300);
         }, 1000);
-      }, convergeDuration);
+      }, 50);
     }
   };
 
-  const calculateBubblePosition = (angle, radius) => {
-    const centerX = 180;
-    const centerY = 180;
+  const handleGameStart = (game) => {
+    navigate(game.path);
+  };
+
+  const calculateBubblePosition = (angle, radius, forceCenter = false, position = { x: 0, y: 0 }) => {
+    if (forceCenter) {
+      return { x: 275, y: 275 };
+    }
+    const centerX = 275;
+    const centerY = 275;
     const radian = (angle * Math.PI) / 180;
     return {
-      x: centerX + Math.cos(radian) * radius,
-      y: centerY + Math.sin(radian) * radius
+      x: centerX + Math.cos(radian) * radius + position.x,
+      y: centerY + Math.sin(radian) * radius + position.y
     };
   };
 
   return (
-    <div 
-      className="min-h-screen flex flex-col items-center justify-start pt-12 relative z-10 transition-colors duration-1000"
-      style={{
-        backgroundColor: selectedGame ? `${selectedGame.colors.dark}10` : 'transparent'
-      }}
-    >
+    <div className="min-h-screen flex flex-col items-center justify-start pt-6 relative z-10">
+      <ScrollbarTheme />
       {/* Titre et GIFs */}
-      <div className="flex items-center justify-center gap-8 mb-16">
+      <div className="flex items-center justify-center gap-12 mb-8 mt-24">
         <img 
-          src="/images/AmongUsTwerk.gif"
-          alt="Among Us Left"
-          className="w-24 h-24 transform -scale-x-100"
+          src={selectedGame 
+            ? selectedGame.soulImage 
+            : "/images/AmongUsTwerk.gif"}
+          alt="Soul Animation Left"
+          className="w-40 h-40 object-contain transform -scale-x-100"
         />
-        <h1 className="text-8xl font-bold text-white text-center">
-          {selectedGame ? selectedGame.type : "BONUS ou MALUS"}
-          <span className="block text-6xl mt-2">du CUL</span>
+        <h1 className="text-8xl font-bold text-center transition-colors duration-500">
+          <span style={{ 
+            color: selectedGame 
+              ? selectedGame.colors.light 
+              : '#fff'
+          }}>
+            {selectedGame ? selectedGame.type : "BONUS ou MALUS"}
+          </span>
+          <span 
+            className="block text-7xl mt-2 transition-colors duration-500"
+            style={{ 
+              color: selectedGame 
+                ? selectedGame.colors.main
+                : '#fff' 
+            }}
+          >
+            du CUL
+          </span>
         </h1>
         <img 
-          src="/images/AmongUsTwerk.gif"
-          alt="Among Us Right"
-          className="w-24 h-24"
+          src={selectedGame 
+            ? selectedGame.soulImage 
+            : "/images/AmongUsTwerk.gif"}
+          alt="Soul Animation Right"
+          className="w-40 h-40 object-contain"
         />
       </div>
 
+
       {/* Cercle mystique avec bulles */}
-      <div className="relative w-[600px] h-[600px] mb-12">
+      <div className="relative w-[550px] h-[550px] mb-6">
+        {/* Lueur d'arrière-plan */}
         <div 
           className="absolute inset-0 rounded-full transition-all duration-1000"
           style={{
             background: selectedGame 
               ? `radial-gradient(circle at center, ${selectedGame.colors.light}20, transparent)`
-              : 'radial-gradient(circle at center, #00C1A010, transparent)',
+              : 'radial-gradient(circle at center, rgba(255,255,255,0.05), transparent)',
             boxShadow: selectedGame 
-              ? `0 0 30px ${selectedGame.colors.main}30`
-              : '0 0 30px rgba(0, 193, 160, 0.1)'
+              ? `0 0 50px ${selectedGame.colors.light}20`
+              : 'none'
           }}
         />
 
-        {/* Bulles animées */}
-        <div className="absolute inset-0 rounded-full overflow-hidden">
+{/* Conteneur des bulles */}
+<div className="absolute inset-0 rounded-full overflow-hidden">
           {wheelBubbles.map(bubble => {
-            const pos = calculateBubblePosition(bubble.angle, bubble.radius);
+            const pos = calculateBubblePosition(
+              bubble.currentAngle, 
+              bubble.radius, 
+              bubble.forceCenter, 
+              bubble.position
+            );
+            const isSelected = animationPhase === 'finalBubble' && bubble.id === finalBubble?.id;
+            
             return (
               <div
                 key={bubble.id}
-                className="absolute rounded-full transition-transform duration-300"
+                className="absolute rounded-full transition-all duration-300"
                 style={{
                   width: `${bubble.size}px`,
                   height: `${bubble.size}px`,
                   left: `${pos.x}px`,
                   top: `${pos.y}px`,
                   transform: 'translate(-50%, -50%)',
-                  background: `radial-gradient(circle at 30% 30%, ${bubble.color}, ${bubble.color}90)`,
-                  boxShadow: `0 0 20px ${bubble.color}50`,
-                  opacity: isSpinning ? '0.6' : '0.8'
+                  background: bubble.colors.gradient,
+                  boxShadow: `0 0 ${isSelected ? '30px' : '20px'} ${bubble.colors.light}${isSelected ? '70' : '50'}`,
+                  opacity: bubble.opacity ?? 1,
+                  transition: isSelected 
+                    ? 'all 0.5s ease-out'
+                    : 'all 0.3s ease-out',
+                  zIndex: isSelected ? 2 : 1
                 }}
               />
             );
@@ -272,74 +335,79 @@ const WheelPage = () => {
         <button
           onClick={spinWheel}
           disabled={isSpinning}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-                   w-32 h-32 rounded-full bg-black/50
-                   hover:bg-[#00C1A0]/30 disabled:opacity-50
-                   transition-all duration-500 group
-                   border border-[#00C1A0]/30
-                   flex items-center justify-center"
+          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                     w-32 h-32 rounded-full bg-black/50
+                     hover:bg-black/40 
+                     transition-all duration-500 group
+                     border border-white/20
+                     flex items-center justify-center z-10
+                     ${isSpinning ? 'opacity-0 invisible' : 'opacity-100 visible'}`}
+          style={{
+            boxShadow: selectedGame 
+              ? `0 0 30px ${selectedGame.colors.main}30`
+              : 'none'
+          }}
         >
           <span className="text-white/90 text-2xl font-medium">
-            {isSpinning ? "..." : "Invoquer"}
+            Invoquer
           </span>
-          <div className="absolute inset-0 rounded-full 
-                       bg-[#00C1A0]/10 group-hover:bg-[#00C1A0]/20 
-                       animate-ping" />
+          <div className="absolute inset-0 rounded-full opacity-50
+                       bg-white/5 group-hover:bg-white/10 
+                       animate-pulse" />
         </button>
       </div>
 
-      {/* Description du jeu sélectionné */}
+      {/* Titre et bouton GO du mini-jeu sélectionné */}
       {selectedGame && showDescription && (
-        <div className="max-w-4xl w-full mx-auto text-center animate-fadeIn"> {/* Augmenté de 3xl à 4xl */}
-  <div className="bg-black/40 backdrop-blur-sm rounded-xl p-12 border border-[#00C1A0]/30"> {/* Padding augmenté */}
-    <h2 className="text-5xl font-bold mb-8" style={{ color: selectedGame.colors.light }}> {/* Taille augmentée */}
-      {selectedGame.name}
-    </h2>
-    
-    <p className="text-3xl mb-10 text-white/90">{selectedGame.shortDesc}</p> {/* Taille augmentée */}
-
-    {selectedGame.preparation.length > 0 && (
-      <div className="mb-8"> {/* Espacement augmenté */}
-        <h3 className="text-2xl font-bold mb-4 text-white">PRÉPARATION :</h3>
-        <ul className="space-y-3 text-xl"> {/* Taille et espacement augmentés */}
-          {selectedGame.preparation.map((prep, index) => (
-            <li key={index} className="text-white/80">{prep}</li>
-          ))}
-        </ul>
-      </div>
-    )}
-
-    <div className="mb-8">
-      <h3 className="text-2xl font-bold mb-4 text-white">{selectedGame.rules.title} :</h3>
-      {selectedGame.rules.content && (
-        <p className="mb-4 text-xl text-white/80">{selectedGame.rules.content}</p>
-      )}
-      <ul className="space-y-3 text-xl">
-        {selectedGame.rules.details.map((detail, index) => (
-          <li key={index} className="text-white/80">{detail}</li>
-        ))}
-      </ul>
-    </div>
-
-    <div className="mt-10 p-6 bg-black/30 rounded-lg"> {/* Padding augmenté */}
-      <h3 className="text-2xl font-bold mb-3 text-white">AVERTISSEMENT :</h3>
-      <p className="text-xl text-white/80">{selectedGame.warning}</p>
-    </div>
-  </div>
-</div>
+        <div className="flex flex-col items-center gap-4 mt-2">
+          <GameTitle
+            title={selectedGame.name}
+            type={selectedGame.type}
+            colors={selectedGame.colors}
+            soulImage={selectedGame.soulImage}
+          />
+          <button
+            onClick={() => handleGameStart(selectedGame)}
+            className="px-12 py-4 rounded-xl text-3xl font-bold transition-all duration-300
+                      transform hover:scale-110 bg-black/30 border-2 border-transparent 
+                      hover:border-current -mt-8"
+            style={{ 
+              color: selectedGame.colors.light,
+              textShadow: `0 0 20px ${selectedGame.colors.light}30`
+            }}
+          >
+            GO !
+          </button>
+        </div>
       )}
 
       <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 1s ease-out forwards;
+        @keyframes float {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-20px) scale(1.05); }
         }
       `}</style>
-    </div>
+      {/* Barre de Défilement */}
+      <style jsx>{`
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: ${selectedGame ? `${selectedGame.colors.dark}10` : 'rgba(0, 168, 139, 0.1)'};
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: ${selectedGame ? `${selectedGame.colors.light}30` : 'rgba(0, 217, 181, 0.3)'};
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: ${selectedGame ? `${selectedGame.colors.light}50` : 'rgba(0, 217, 181, 0.5)'};
+      }
+    `}</style>
+  </div>
   );
 };
 
