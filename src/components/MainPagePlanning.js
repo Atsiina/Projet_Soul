@@ -58,7 +58,7 @@ const PlanningSection = () => {
         },
         {
           name: "LEAGUE OF LEGENDS",
-          logo: "/images/Logo Jeux/League of Legends.png"
+          logo: "/images/Logo Jeux/League Of Legends.png"
         }
       ]
     }
