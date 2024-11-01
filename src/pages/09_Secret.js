@@ -44,15 +44,15 @@ const SecretPage = () => {
       </div>
 
       {/* Titre */}
-      <div className="relative z-10 pt-8 pb-4 text-center">
+      <div className="relative z-10 pt-12 pb-5 text-center">
         <div className="flex items-center justify-center gap-4">
           <img 
-            src="/images/Âmichettes Charly/Amichette_Verte.gif" 
+            src="/images/Âmichettes Charly/Amichette_Doré.gif" 
             alt="Soul Animation Left" 
-            className="w-16 h-16 object-contain transform -scale-x-100"
+            className="w-16 h-16 object-contain"
           />
           <h1 
-            className="text-5xl font-bold tracking-wider"
+            className="text-6xl font-bold tracking-wider"
             style={{
               background: 'linear-gradient(to bottom, #00C1A0, #008B71, #00755E)',
               WebkitBackgroundClip: 'text',
@@ -63,9 +63,9 @@ const SecretPage = () => {
             Soul Eater Game
           </h1>
           <img 
-            src="/images/Âmichettes Charly/Amichette_Verte.gif" 
+            src="/images/Âmichettes Charly/Amichette_Doré.gif" 
             alt="Soul Animation Right" 
-            className="w-16 h-16 object-contain"
+            className="w-16 h-16 object-contain transform -scale-x-100"
           />
         </div>
       </div>

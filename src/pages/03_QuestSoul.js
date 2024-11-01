@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useThemeColors } from '../context/ColorContext';
 import GameTitle from '../components/GameTitle';
 import GameDescription from '../components/GameDescription';
+import ScrollbarTheme from '../components/ScrollbarTheme';
 
 const niveaux = ["Facile", "Normal", "Difficile", "Extrême"];
 const niveauxIcons = {
@@ -240,8 +241,28 @@ const QuestSoulPage = () => {
           </section>
         )}
       </div>
-    </div>
-  );
+      {/* Barre de Défilement */}
+      <style jsx>{`
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(0, 129, 186, 0.1);
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(51, 181, 237, 0.3);
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(51, 181, 237, 0.5);
+      }
+    `}</style>
+  </div>
+);
 };
 
 export default QuestSoulPage;

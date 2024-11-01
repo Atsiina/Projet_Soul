@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import GameTitle from '../components/GameTitle';
 import GameDescription from '../components/GameDescription';
 import ApiService from '../services/api';
+import ScrollbarTheme from '../components/ScrollbarTheme';
 
 const ChiSoulMiPage = () => {
   // Constantes
@@ -761,6 +762,206 @@ const createDuel = async () => {
         </div>
       </GameDescription>
     </div>
+
+      {/* Contenu principal */}
+      <div className="relative z-10 p-8">
+        {/* En-tête avec scores */}
+        <div className="flex justify-between items-start mb-12">
+          {/* Joueur 1 */}
+          <div className="text-center">
+            <input
+              type="text"
+              value={player1Name}
+              onChange={(e) => setPlayer1Name(e.target.value)}
+              className="bg-transparent text-3xl font-bold mb-4 text-center outline-none border-b-2 border-transparent hover:border-red-500 focus:border-red-500"
+              style={{ color: gameColors.light }}
+            />
+            <div className="text-5xl font-bold mb-2" style={{ color: gameColors.main }}>
+              {player1Score}
+            </div>
+            <div className="text-xl opacity-70">
+              Total: {totalPlayer1Score}
+            </div>
+          </div>
+
+          {/* Timer central */}
+          <div className="text-6xl font-bold" style={{ color: gameColors.light }}>
+            {gameState === 'setup' ? setupTimer : gameTimer}
+          </div>
+
+          {/* Joueur 2 */}
+          <div className="text-center">
+            <input
+              type="text"
+              value={player2Name}
+              onChange={(e) => setPlayer2Name(e.target.value)}
+              className="bg-transparent text-3xl font-bold mb-4 text-center outline-none border-b-2 border-transparent hover:border-red-500 focus:border-red-500"
+              style={{ color: gameColors.light }}
+            />
+            <div className="text-5xl font-bold mb-2" style={{ color: gameColors.main }}>
+              {player2Score}
+            </div>
+            <div className="text-xl opacity-70">
+              Total: {totalPlayer2Score}
+            </div>
+          </div>
+        </div>
+
+        {/* Phase de préparation */}
+        {gameState === 'setup' && (
+          <div className="text-center">
+            <h2 className="text-4xl font-bold mb-8" style={{ color: gameColors.light }}>
+              Êtes-vous prêts ?
+            </h2>
+            <div className="flex justify-center gap-12">
+              <button
+                onClick={() => setPlayer1Ready(true)}
+                className={`px-8 py-4 rounded-xl text-2xl font-bold transition-all duration-300
+                          ${player1Ready 
+                            ? 'bg-green-500/20 border-2 border-green-500' 
+                            : 'bg-red-500/20 border-2 border-red-500 hover:bg-red-500/30'}`}
+                disabled={player1Ready}
+              >
+                {player1Name} {player1Ready ? '✓' : 'Prêt ?'}
+              </button>
+              <button
+                onClick={() => setPlayer2Ready(true)}
+                className={`px-8 py-4 rounded-xl text-2xl font-bold transition-all duration-300
+                          ${player2Ready 
+                            ? 'bg-green-500/20 border-2 border-green-500' 
+                            : 'bg-red-500/20 border-2 border-red-500 hover:bg-red-500/30'}`}
+                disabled={player2Ready}
+              >
+                {player2Name} {player2Ready ? '✓' : 'Prêt ?'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Phase de jeu */}
+        {gameState === 'playing' && (
+          <div className="grid grid-cols-2 gap-16">
+            {/* Zone Joueur 1 */}
+            <div className="space-y-8">
+              <h3 className="text-3xl font-bold text-center mb-8" style={{ color: gameColors.light }}>
+                {player1Name}
+              </h3>
+              <div className="grid grid-cols-3 gap-4">
+                {choices.map((choice) => (
+                  <button
+                    key={choice.id}
+                    onClick={() => setPlayer1Choice(choice.id)}
+                    disabled={showResult || player1Choice}
+                    className={`relative p-4 rounded-xl transition-all duration-300 
+                              ${player1Choice === choice.id 
+                                ? 'bg-red-500/30 border-2 border-red-500' 
+                                : 'bg-black/30 border-2 border-transparent hover:border-red-500'}`}
+                  >
+                    <img 
+                      src={choice.image}
+                      alt={choice.label}
+                      className="w-full h-32 object-contain mb-2"
+                    />
+                    <div className="text-lg font-medium">{choice.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Zone Joueur 2 */}
+            <div className="space-y-8">
+              <h3 className="text-3xl font-bold text-center mb-8" style={{ color: gameColors.light }}>
+                {player2Name}
+              </h3>
+              <div className="grid grid-cols-3 gap-4">
+                {choices.map((choice) => (
+                  <button
+                    key={choice.id}
+                    onClick={() => setPlayer2Choice(choice.id)}
+                    disabled={showResult || player2Choice}
+                    className={`relative p-4 rounded-xl transition-all duration-300 
+                              ${player2Choice === choice.id 
+                                ? 'bg-red-500/30 border-2 border-red-500' 
+                                : 'bg-black/30 border-2 border-transparent hover:border-red-500'}`}
+                  >
+                    <img 
+                      src={choice.image}
+                      alt={choice.label}
+                      className="w-full h-32 object-contain mb-2"
+                    />
+                    <div className="text-lg font-medium">{choice.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Affichage du résultat */}
+        {showResult && (
+          <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-6xl font-bold mb-8" style={{ color: gameColors.light }}>
+                {winner === 'tie' 
+                  ? 'Égalité !' 
+                  : winner === 'player1' 
+                    ? `${player1Name} gagne !` 
+                    : `${player2Name} gagne !`}
+              </h2>
+              <div className="text-2xl">
+                Manche {round} / 3
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bouton nouvelle partie */}
+        {(gameState === 'setup' && round === 1) && (
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+            <button
+              onClick={endGame}
+              className="px-8 py-4 rounded-xl text-2xl font-bold bg-red-500/20 
+                       border-2 border-red-500 hover:bg-red-500/30 transition-all duration-300"
+            >
+              Nouvelle partie
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Styles pour les animations */}
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0) scale(1);
+          }
+          50% {
+            transform: translateY(-20px) scale(1.05);
+          }
+        }
+      `}</style>
+      {/* Barre de Défilement */}
+      <style jsx>{`
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: rgba(139, 0, 17, 0.1);
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: rgba(179, 0, 37, 0.3);
+        border-radius: 5px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(179, 0, 37, 0.5);
+      }
+    `}</style>
+  </div>
+
   );
 };
 

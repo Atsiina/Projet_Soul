@@ -225,17 +225,9 @@ const MainPage = () => {
                     hover:from-black/80 hover:to-[#00755E]/60 
                     transition-all duration-300 cursor-pointer
                     border border-[#00755E]/20">
-          <a href="votre-lien-discord" target="_blank" rel="noopener noreferrer"
-             className="flex items-center justify-center gap-6">
-            <img 
-              src="/images/discord-icon.png" 
-              alt="Discord" 
-              className="w-16 h-16"
-            />
-            <span className="text-3xl text-white hover:text-[#00C1A0] transition-colors duration-300">
-              Rejoignez-nous sur Discord
-            </span>
-          </a>
+          <div className="text-3xl text-white hover:text-[#00C1A0] transition-colors duration-300 text-center">
+            Rejoignez-nous sur Discord
+          </div>
         </div>
       </section>
     </div>
