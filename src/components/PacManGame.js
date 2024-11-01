@@ -114,6 +114,7 @@ const MAZE_MAP = [
   const [showGameOver, setShowGameOver] = useState(false);
   const [fruitColor, setFruitColor] = useState(() => 
     AMICHETTE_COLORS[Math.floor(Math.random() * AMICHETTE_COLORS.length)]
+  
   );
   
   const [pacman, setPacman] = useState({
@@ -289,6 +290,25 @@ useEffect(() => {
 // ===========================================
 // Fonctions de rendu
 // ===========================================
+
+const getWallNeighbors = (grid, x, y) => {
+  const isWall = (x, y) => {
+    if (x < 0 || y < 0 || y >= grid.length || x >= grid[0].length) return false;
+    return grid[y][x] === CELL_TYPES.WALL || grid[y][x] === CELL_TYPES.GHOST_WALL;
+  };
+
+  return {
+    top: isWall(x, y - 1),
+    bottom: isWall(x, y + 1),
+    left: isWall(x - 1, y),
+    right: isWall(x + 1, y),
+    topLeft: isWall(x - 1, y - 1),
+    topRight: isWall(x + 1, y - 1),
+    bottomLeft: isWall(x - 1, y + 1),
+    bottomRight: isWall(x + 1, y + 1)
+  };
+};
+
 const drawWalls = (ctx) => {
   ctx.strokeStyle = COLORS.WALL;
   ctx.lineWidth = WALL_THICKNESS;
@@ -297,12 +317,99 @@ const drawWalls = (ctx) => {
   ctx.shadowColor = COLORS.WALL_GLOW;
   ctx.shadowBlur = NEON_BLUR;
 
+  const isWall = (x, y) => {
+    if (x < 0 || y < 0 || y >= gameGrid.length || x >= gameGrid[0].length) return false;
+    return gameGrid[y][x] === CELL_TYPES.WALL || gameGrid[y][x] === CELL_TYPES.GHOST_WALL;
+  };
+
+  const findNextPoint = (x, y, visited) => {
+    const directions = [
+      [0, -1], // haut
+      [1, 0],  // droite
+      [0, 1],  // bas
+      [-1, 0]  // gauche
+    ];
+
+    for (const [dx, dy] of directions) {
+      const newX = x + dx;
+      const newY = y + dy;
+      const key = `${newX},${newY}`;
+      
+      if (isWall(newX, newY) && !visited.has(key)) {
+        return [newX, newY];
+      }
+    }
+    return null;
+  };
+
+  const traceShape = (startX, startY) => {
+    const visited = new Set();
+    const path = [];
+    let currentX = startX;
+    let currentY = startY;
+
+    while (true) {
+      const key = `${currentX},${currentY}`;
+      if (visited.has(key)) break;
+
+      visited.add(key);
+      path.push([currentX, currentY]);
+
+      const nextPoint = findNextPoint(currentX, currentY, visited);
+      if (!nextPoint) break;
+
+      [currentX, currentY] = nextPoint;
+    }
+
+    if (path.length > 0) {
+      ctx.beginPath();
+      
+      // Points de départ pour le tracé
+      const startPoint = path[0];
+      ctx.moveTo(startPoint[0] * CELL_SIZE + CELL_SIZE/2, startPoint[1] * CELL_SIZE + CELL_SIZE/2);
+
+      for (let i = 1; i < path.length; i++) {
+        const [x, y] = path[i];
+        const prevX = path[i-1][0];
+        const prevY = path[i-1][1];
+
+        if (x !== prevX && y !== prevY) {
+          const cpX = prevX * CELL_SIZE + CELL_SIZE/2;
+          const cpY = y * CELL_SIZE + CELL_SIZE/2;
+          ctx.quadraticCurveTo(
+            cpX,
+            cpY,
+            x * CELL_SIZE + CELL_SIZE/2,
+            y * CELL_SIZE + CELL_SIZE/2
+          );
+        } else {
+          ctx.lineTo(x * CELL_SIZE + CELL_SIZE/2, y * CELL_SIZE + CELL_SIZE/2);
+        }
+      }
+
+      // Vérification de la fermeture du chemin
+      const startPos = path[0];
+      const endPos = path[path.length - 1];
+      
+      if (Math.abs(startPos[0] - endPos[0]) <= 1 && Math.abs(startPos[1] - endPos[1]) <= 1) {
+        ctx.closePath();
+      }
+
+      ctx.stroke();
+    }
+  };
+
+  const visited = new Set();
   for (let y = 0; y < gameGrid.length; y++) {
     for (let x = 0; x < gameGrid[0].length; x++) {
-      if (gameGrid[y][x] === CELL_TYPES.WALL || gameGrid[y][x] === CELL_TYPES.GHOST_WALL) {
-        const cellX = x * CELL_SIZE;
-        const cellY = y * CELL_SIZE;
-        ctx.strokeRect(cellX, cellY, CELL_SIZE, CELL_SIZE);
+      const key = `${x},${y}`;
+      if (isWall(x, y) && !visited.has(key)) {
+        traceShape(x, y);
+        let current = [x, y];
+        while (current) {
+          visited.add(`${current[0]},${current[1]}`);
+          current = findNextPoint(current[0], current[1], visited);
+        }
       }
     }
   }
