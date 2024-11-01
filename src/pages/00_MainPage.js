@@ -1,33 +1,113 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Minus } from 'lucide-react';
 import ScoreTable from '../components/ScoreTable';
 import GameDescription from '../components/GameDescription';
 import MainPagePlanning from '../components/MainPagePlanning';
 import AnimatedBackground from '../components/AnimatedBackground';
+import { useAuth } from '../context/AuthContext';
+
+// Configuration de l'API
+const API_BASE_URL = 'http://localhost:8080/api';
+
+// Fonction utilitaire pour les appels API authentifiés
+const fetchWithAuth = async (endpoint, options = {}) => {
+  const token = localStorage.getItem('token');
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
+};
 
 const MainPage = () => {
-  const [scores, setScores] = useState([
-    { id: 1, player: "Charly", souls: 0 },
-    { id: 2, player: "Zaza", souls: 0 },
-    { id: 3, player: "Quasibrother", souls: 0 },
-    { id: 4, player: "Billy", souls: 0 },
-    { id: 5, player: "Logy", souls: 0 },
-    { id: 6, player: "Evil Luxus", souls: 0 },
-    { id: 7, player: "Gray", souls: 0 },
-    { id: 8, player: "Atsina", souls: 0 },
-    { id: 9, player: "Shishi", souls: 0 },
-    { id: 10, player: "Akuma", souls: 0 },
-  ]);
+  const { user } = useAuth();
+  const [scores, setScores] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedButton, setSelectedButton] = useState(0);
 
-  const updateSouls = (playerId, increment) => {
-    setScores(prevScores => 
-      prevScores.map(player => 
-        player.id === playerId 
-          ? { ...player, souls: Math.max(0, player.souls + increment) }
-          : player
-      )
-    );
+  // Chargement initial des utilisateurs depuis la BDD
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        setIsLoading(true);
+        const users = await fetchWithAuth('/users');
+        const formattedScores = users.map(user => ({
+          id: user.ID,
+          player: user.Nickname,
+          souls: user.Souls || 0
+        }));
+        setScores(formattedScores);
+      } catch (err) {
+        console.error('Erreur de chargement:', err);
+        setError('Erreur lors du chargement des scores');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUsers();
+  }, []);
+
+  // Mise à jour des âmes dans la BDD
+  const updateSouls = async (playerId, increment) => {
+    try {
+      const currentPlayer = scores.find(p => p.id === playerId);
+      if (!currentPlayer) return;
+
+      const newSouls = Math.max(0, currentPlayer.souls + increment);
+
+      // Mise à jour dans la BDD
+      await fetchWithAuth(`/users/${playerId}/souls`, {
+        method: 'PATCH',
+        body: JSON.stringify({ souls: newSouls })
+      });
+
+      // Mise à jour locale du state
+      setScores(prevScores => 
+        prevScores.map(player => 
+          player.id === playerId 
+            ? { ...player, souls: newSouls }
+            : player
+        )
+      );
+    } catch (error) {
+      console.error('Erreur de mise à jour:', error);
+      alert('Erreur lors de la mise à jour du score');
+    }
   };
+
+  // État de chargement
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-white text-2xl">Chargement des scores...</div>
+      </div>
+    );
+  }
+
+  // Affichage des erreurs
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-red-500 text-2xl">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
@@ -85,11 +165,17 @@ const MainPage = () => {
         </div>
       </header>
 
-      {/* Planning Section avec la date intégrée */}
+      {/* Planning Section */}
       <MainPagePlanning />
 
-      {/* Section Classement */}
-      <ScoreTable scores={scores} updateSouls={updateSouls} />
+      {/* Section Classement avec ScoreTable */}
+      <div className="relative z-10 py-16">
+        <ScoreTable 
+          scores={scores} 
+          updateSouls={updateSouls} 
+          isAdmin={user?.isAdmin}
+        />
+      </div>
 
       {/* Description */}
       <GameDescription 

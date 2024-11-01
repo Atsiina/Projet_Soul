@@ -1,13 +1,27 @@
 import React, { useState } from 'react';
 import { Plus, Minus, Trophy } from 'lucide-react';
 
-const ScoreTable = ({ scores = [], updateSouls }) => {
+const ScoreTable = ({ scores = [], updateSouls, isAdmin }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [positions, setPositions] = useState({});
   
-  const sortedScores = Array.isArray(scores) 
-    ? [...scores].sort((a, b) => b.souls - a.souls)
-    : [];
+  // Liste des joueurs avec leurs scores à 0
+  const defaultScores = [
+    { id: 1, nickname: "Zaza", souls: 0 },
+    { id: 2, nickname: "Charly", souls: 0 },
+    { id: 3, nickname: "Gray", souls: 0 },
+    { id: 4, nickname: "Akuma", souls: 0 },
+    { id: 5, nickname: "Quasibrother", souls: 0 },
+    { id: 6, nickname: "Shishi", souls: 0 },
+    { id: 7, nickname: "Evil Heart", souls: 0 },
+    { id: 8, nickname: "Atsina", souls: 0 },
+    { id: 9, nickname: "Billy", souls: 0 },
+    { id: 10, nickname: "Logy", souls: 0 }
+  ];
+
+  const sortedScores = React.useMemo(() => {
+    return [...defaultScores].sort((a, b) => b.souls - a.souls);
+  }, []);
 
   const handleUpdateSouls = async (playerId, increment) => {
     if (isAnimating) return;
@@ -23,12 +37,16 @@ const ScoreTable = ({ scores = [], updateSouls }) => {
     setPositions(newPositions);
     setIsAnimating(true);
 
-    await updateSouls(playerId, increment);
+    try {
+      await updateSouls(playerId, increment);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour:', error);
+    }
 
     setTimeout(() => {
       setIsAnimating(false);
       setPositions({});
-    }, 600); // Augmenté à 1200ms pour une animation plus lente
+    }, 600);
   };
 
   const getTransitionStyle = (playerId) => {
@@ -43,11 +61,11 @@ const ScoreTable = ({ scores = [], updateSouls }) => {
 
     return {
       transform: `translateY(${-diff}px)`,
-      transition: 'transform 600ms cubic-bezier(0.4, 0.0, 0.2, 1)' // Animation plus lente et plus fluide
+      transition: 'transform 600ms cubic-bezier(0.4, 0.0, 0.2, 1)'
     };
   };
 
-  // Configuration des rangs (reste identique)
+  // Configuration des rangs
   const rankConfig = {
     0: { 
       trophyColor: 'text-yellow-500',
@@ -137,7 +155,7 @@ const ScoreTable = ({ scores = [], updateSouls }) => {
                 <tr 
                   key={player.id}
                   id={`row-${player.id}`}
-                  className={`border-b border-[#00755E]/20 hover:bg-[#00755E]/10`}
+                  className="border-b border-[#00755E]/20 hover:bg-[#00755E]/10"
                   style={getTransitionStyle(player.id)}
                 >
                   <td className="py-6 px-4">
@@ -157,7 +175,7 @@ const ScoreTable = ({ scores = [], updateSouls }) => {
                     <span className={`text-4xl font-medium ${
                       index < 5 ? rankConfig[index].nameColor : 'text-white'
                     }`}>
-                      {player.player}
+                      {player.nickname}
                     </span>
                   </td>
                   
